@@ -6,13 +6,14 @@
 # Running the the EVM Script
 
 ```
-cd eclipse-evm
+cd evm
 npx hardhat test test/eclipse-ns.js
 ```
 
 # Running the SVM Script
 
 ```
+cd svm
 anchor build
 anchor test
 ```
