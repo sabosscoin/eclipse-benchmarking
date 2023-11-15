@@ -6,12 +6,12 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
 
   // Deploy the contract
-  const EclipseNS = await hre.ethers.getContractFactory("EclipseNS");
+  const EclipseNS = await hre.ethers.getContractFactory("eclipse_ns");
   const eclipseNS = await EclipseNS.deploy("test", deployer.address);
 
   await eclipseNS.deployed();
 
-  console.log("EclipseNS deployed to:", eclipseNS.address);
+  console.log("eclipse_ns deployed to:", eclipseNS.address);
 }
 
 main()
