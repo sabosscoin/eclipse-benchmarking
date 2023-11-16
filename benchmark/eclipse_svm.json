@@ -1,0 +1,200 @@
+{
+  "version": "0.0.1",
+  "name": "eclipse_ns",
+  "instructions": [
+    {
+      "name": "owner",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [],
+      "returns": "publicKey"
+    },
+    {
+      "name": "domains",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [
+        {
+          "name": "arg0",
+          "type": "string"
+        }
+      ],
+      "returns": "publicKey"
+    },
+    {
+      "name": "records",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [
+        {
+          "name": "arg0",
+          "type": "string"
+        }
+      ],
+      "returns": "string"
+    },
+    {
+      "name": "new",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": true,
+          "isSigner": true,
+          "isOptional": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "isOptional": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [
+        {
+          "name": "initialOwner",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "register",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": false
+        },
+        {
+          "name": "ownerAccount",
+          "isMut": false,
+          "isSigner": true,
+          "isOptional": false
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "payer",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "price",
+      "accounts": [],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "returns": "u64"
+    },
+    {
+      "name": "setRecord",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": false
+        },
+        {
+          "name": "ownerAccount",
+          "isMut": false,
+          "isSigner": true,
+          "isOptional": false
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "record",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "getRecord",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "returns": "string"
+    },
+    {
+      "name": "getAllNames",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [],
+      "returns": {
+        "vec": "string"
+      }
+    },
+    {
+      "name": "valid",
+      "accounts": [],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "returns": "bool"
+    }
+  ],
+  "metadata": {
+    "address": "3FeFUn3mng4psjHTwWwQUZPvisxVVxZ3UVPAtVBfKG6b"
+  }
+}

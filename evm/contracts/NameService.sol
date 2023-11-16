@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 contract eclipse_ns {
     uint64 constant ERROR_ALREADY_REGISTERED = 100;
     uint64 constant ERROR_INVALID_NAME = 200;
@@ -8,12 +8,14 @@ contract eclipse_ns {
     uint64 constant ERROR_INVALID_LENGTH = 500;
     uint64 constant SMALLEST_GAS_UNIT = 10**16;
     address payable public owner;
+    string public tld;
     mapping(string => address) public domains;
     string[] private domainKeys;
     mapping(string => string) public records;
 
-    constructor(address initial_owner) {
+    constructor(string memory _tld, address initial_owner) {
         owner = payable(initial_owner);
+        tld = _tld;
     }
 
     // Register a domain
