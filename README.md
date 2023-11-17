@@ -43,6 +43,8 @@ $ cd benchmark
 $ npm install
 ```
 
+Before you run the benchmarks, take a look at `diff evm_benchmark.js svm_benchmark.js` to make sure you agree the benchmark is apples-to-apples.
+
 ## SVM Benchmark
 
 For the SVM benchmark, you can update the program ID to specify the program that you deployed when testing the SVM name serivce. We assume that your keypair is located in the default location: `~/.config/solana/id.json`
@@ -62,4 +64,15 @@ Go into the `evm` directory and deploy as per usual:
 $ npx hardhat run --network <your-network> scripts/deploy.js
 ```
 
-In the `benchmark` folder, modify the `evm_benchmark.js` script to specify your new network, contract address, and private key.
+In the `benchmark` folder, modify the `evm_benchmark.js` script to specify your new network, contract address, and private key. You also need to update `UNIQUE_PREFIX` to a new prefix for each benchmark run.
+
+### Common Errors
+
+For the EVM script:
+```
+    reason: 'processing response error',
+    code: 'SERVER_ERROR',
+    body: '{"jsonrpc":"2.0","id":56,"error":{"code":-32000,"message":"replacement transaction underpriced"}}\n',
+```
+
+If you get this error, you just need to increase `GAS_MULTIPLER_PER_TX`.
