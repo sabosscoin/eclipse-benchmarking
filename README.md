@@ -66,6 +66,11 @@ $ npx hardhat run --network <your-network> scripts/deploy.js
 
 In the `benchmark` folder, modify the `evm_benchmark.js` script to specify your new network, contract address, and private key. You also need to update `UNIQUE_PREFIX` to a new prefix for each benchmark run.
 
+Run the EVM benchmark:
+```
+$ node evm_benchmark.js
+```
+
 ### Common Errors
 
 For the EVM script:
