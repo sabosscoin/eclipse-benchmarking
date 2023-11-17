@@ -8,7 +8,7 @@ describe("eclipse_ns", function () {
     EclipseNS = await ethers.getContractFactory("eclipse_ns");
     [owner, addr1] = await ethers.getSigners();
 
-    eclipseNS = await EclipseNS.deploy(owner.address);
+    eclipseNS = await EclipseNS.deploy('ecl', owner.address);
     await eclipseNS.deployed();
   });
 

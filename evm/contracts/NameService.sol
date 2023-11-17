@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 contract eclipse_ns {
-    uint64 constant ERROR_ALREADY_REGISTERED = 100;
-    uint64 constant ERROR_INVALID_NAME = 200;
-    uint64 constant ERROR_NOT_ENOUGH_ETH = 300;
-    uint64 constant ERROR_UNAUTHORIZED = 400;
-    uint64 constant ERROR_INVALID_LENGTH = 500;
+    uint64 constant ERROR_ALREADY_REGISTERED = 1;
+    uint64 constant ERROR_INVALID_NAME = 2;
+    uint64 constant ERROR_NOT_ENOUGH_ETH = 3;
+    uint64 constant ERROR_UNAUTHORIZED = 4;
+    uint64 constant ERROR_INVALID_LENGTH = 5;
     uint64 constant SMALLEST_GAS_UNIT = 10**16;
     address payable public owner;
     string public tld;

@@ -14,7 +14,7 @@ describe("eclipse_ns", () => {
     const initialOwner = Keypair.generate().publicKey; 
 
     await program.methods
-      .new(initialOwner)
+      .new('ecl', initialOwner)
       .accounts({
         dataAccount: nameRecordOwner.publicKey,
         payer: program.provider.wallet.publicKey,
