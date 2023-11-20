@@ -8,21 +8,32 @@ describe("eclipse_ns", () => {
 
   const program = anchor.workspace.eclipse_ns as Program<EclipseNs>;
 
-  it("Mints 1 domain with .ecl", async () => {
-    const domainName = 'test.ecl';
-    const nameRecordOwner = Keypair.generate();
-    const initialOwner = Keypair.generate().publicKey; 
+  it("Mints 100 domains with .ecl", async () => {
+    const promises = [];
+    for (let i = 0; i < 100; i++) {
+      const domainName = `test${i}.ecl`;
+      const nameRecordOwner = Keypair.generate();
+      const initialOwner = Keypair.generate().publicKey;
 
-    await program.methods
-      .new('ecl', initialOwner)
-      .accounts({
-        dataAccount: nameRecordOwner.publicKey,
-        payer: program.provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([nameRecordOwner])
-      .rpc();
+      const promise = program.methods
+        .new("ecl", initialOwner)
+        .accounts({
+          dataAccount: nameRecordOwner.publicKey,
+          payer: program.provider.wallet.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([nameRecordOwner])
+        .rpc()
+        .then(() => {
+          console.log(
+            `Domain ${domainName} registered to ${nameRecordOwner.publicKey}`
+          );
+        });
 
-    console.log(`Domain ${domainName} registered to ${nameRecordOwner.publicKey}`);
+      promises.push(promise);
+    }
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
   });
 });

@@ -23,11 +23,11 @@ contract eclipse_ns {
     // Register a domain
     @signer(ownerAccount)
     function register(string calldata name, uint64 amount, address payer) external {
-        assert(tx.accounts.ownerAccount.is_signer);
-        assert(domains[name] == address(0) || ERROR_ALREADY_REGISTERED == 0);
-        assert(valid(name) || ERROR_INVALID_NAME == 0);
+        require(tx.accounts.ownerAccount.is_signer, "Not a signer");
+        require(domains[name] == address(0), "Domain is already registered");
+        require(valid(name), "Invalid domain name");
         uint64 _price = price(name);
-        assert(amount >= _price || ERROR_NOT_ENOUGH_ETH == 0);
+        require(amount >= _price, "Not enough ETH sent");
         domains[name] = payer;
         domainKeys.push(name);
     }

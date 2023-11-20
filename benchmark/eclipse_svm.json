@@ -16,6 +16,19 @@
       "returns": "publicKey"
     },
     {
+      "name": "tld",
+      "accounts": [
+        {
+          "name": "dataAccount",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": false
+        }
+      ],
+      "args": [],
+      "returns": "string"
+    },
+    {
       "name": "domains",
       "accounts": [
         {
@@ -74,6 +87,10 @@
         }
       ],
       "args": [
+        {
+          "name": "tld",
+          "type": "string"
+        },
         {
           "name": "initialOwner",
           "type": "publicKey"
@@ -193,8 +210,5 @@
       ],
       "returns": "bool"
     }
-  ],
-  "metadata": {
-    "address": "3FeFUn3mng4psjHTwWwQUZPvisxVVxZ3UVPAtVBfKG6b"
-  }
+  ]
 }
