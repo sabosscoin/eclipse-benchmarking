@@ -1,52 +1,45 @@
 const ethers = require("ethers");
 const fs = require("fs");
 
-const NETWORK = "https://l1-charming-salmon-swordfish-5erk8fvo2s.t.conduit.xyz";
-const CONTRACT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const PRIVATE_KEY = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+const NETWORK = "http://127.0.0.1:8545";
+const CONTRACT_ADDRESS = "0xd0F350b13465B5251bb03E4bbf9Fa1DbC4a378F3";
+const PRIVATE_KEY = "0xde9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa6c4c28b4ee0";
 const N_DOMAINS = 100;
-const UNIQUE_PREFIX = 'nameprefix';  // This prefix MUST be changed after each run.
+const UNIQUE_PREFIX = "nameprefix";  // This prefix MUST be changed after each run.
 
 const CONTRACT_ABI = JSON.parse(fs.readFileSync("eclipse_evm.json", "utf8"));
 const PROVIDER = new ethers.providers.JsonRpcProvider(NETWORK);
-const WALLET = new ethers.Wallet(PRIVATE_KEY, PROVIDER);
-const CONTRACT = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, WALLET);
+const PRIMARY_WALLET = new ethers.Wallet(PRIVATE_KEY, PROVIDER);
+const CONTRACT = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, PROVIDER);
 const GAS_LIMIT = ethers.BigNumber.from("1000000");
 const GAS_MULTIPLIER_PER_TX = ethers.BigNumber.from("3");
+const REGISTRATION_PRICE = ethers.BigNumber.from("0x2386f26fc10000");
 
 async function runBenchmark() {
   const domainNames = [...Array(N_DOMAINS).keys()].map(
     (i) => `${UNIQUE_PREFIX}${i + 1}.ecl`
   );
-  let nonce = await PROVIDER.getTransactionCount(WALLET.address);
 
-  console.time("name_service_benchmark");
+  const nonce = await PROVIDER.getTransactionCount(PRIMARY_WALLET.address);
 
-  const registrationPromises = domainNames.map((domainName, index) => {
-    return (async () => {
-      const registrationPrice = await CONTRACT.price(domainName);
+  const registrationTxns = domainNames.map(async (domainName, i) => {
       const gasPrice = await PROVIDER.getGasPrice();
       const increasedGasPrice = gasPrice.mul(GAS_MULTIPLIER_PER_TX);
 
-      const transaction = {
-        value: registrationPrice,
+      const txn = {
+        value: REGISTRATION_PRICE,
         gasLimit: GAS_LIMIT,
         gasPrice: increasedGasPrice,
-        nonce: nonce + index,
+        nonce: nonce + i,
       };
+      const contractWithSigner = CONTRACT.connect(PRIMARY_WALLET);
+      return contractWithSigner.register(domainName, PRIMARY_WALLET.address, txn);
+    });
 
-      return CONTRACT.register(domainName, WALLET.address, transaction);
-    })();
-  });
-
-  try {
-    await Promise.all(registrationPromises);
-    console.log(`${N_DOMAINS} domains registered successfully`);
-  } catch (error) {
-    console.error(`Error registering domains:`, error);
-  }
-
+  console.time("name_service_benchmark");
+  await Promise.all(registrationTxns);
   console.timeEnd("name_service_benchmark");
+  console.log(`${N_DOMAINS} domains registered successfully`);
 }
 
 runBenchmark();

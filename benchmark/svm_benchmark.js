@@ -3,20 +3,18 @@ const { Keypair, Connection, PublicKey } = require("@solana/web3.js");
 const fs = require("fs");
 
 const NETWORK = "https://staging-rpc.dev.eclipsenetwork.xyz";
-const CONTRACT_ADDRESS = new PublicKey(
-  "3FeFUn3mng4psjHTwWwQUZPvisxVVxZ3UVPAtVBfKG6b"
-);
+const CONTRACT_ADDRESS = new PublicKey("FPsPhgLiXVswa5EvCYqa93tzL5t6MLxg9kgptE6WCY6d");
 const PRIVATE_KEY = `${require("os").homedir()}/.config/solana/id.json`; 
 const N_DOMAINS = 100;
-const UNIQUE_PREFIX = "nameprefix";
+const UNIQUE_PREFIX = "nameprefix";  // This prefix MUST be changed after each run.
 
 const CONTRACT_ABI = JSON.parse(fs.readFileSync("eclipse_svm.json", "utf8"));
-const WALLET = Keypair.fromSecretKey(
+const PRIMARY_WALLET = Keypair.fromSecretKey(
   new Uint8Array(JSON.parse(fs.readFileSync(PRIVATE_KEY, "utf8")))
 );
 const PROVIDER = new anchor.AnchorProvider(
   new Connection(NETWORK, "processed"),
-  new anchor.Wallet(WALLET),
+  new anchor.Wallet(PRIMARY_WALLET),
   { preflightCommitment: "processed" }
 );
 const CONTRACT = new anchor.Program(CONTRACT_ABI, CONTRACT_ADDRESS, PROVIDER);
@@ -26,13 +24,12 @@ async function runBenchmark() {
     (i) => `${UNIQUE_PREFIX}${i + 1}.ecl`
   );
 
-  console.time("name_service_benchmark");
-
-  const mintPromises = domainNames.map(async (domainName) => {
+  const registrationTxns = domainNames.map(async (domainName) => {
     const nameRecordOwner = Keypair.generate();
     const initialOwner = Keypair.generate().publicKey;
 
-    await CONTRACT.methods
+    // FIXME: Where is amount specified?
+    return CONTRACT.methods
       .new(domainName, initialOwner)
       .accounts({
         dataAccount: nameRecordOwner.publicKey,
@@ -40,21 +37,13 @@ async function runBenchmark() {
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([nameRecordOwner])
-      .rpc()
-      .then(() => {
-        console.log(
-          `Domain ${domainName} registered to ${nameRecordOwner.publicKey.toBase58()}`
-        );
-      })
-      .catch((error) => {
-        console.error(`Error registering domain ${domainName}:`, error);
-      });
+      .rpc();
   });
 
-  await Promise.all(mintPromises);
-
+  console.time("name_service_benchmark");
+  await Promise.all(registrationTxns);
   console.timeEnd("name_service_benchmark");
-  console.log(`${N_DOMAINS} domains registered`);
+  console.log(`${N_DOMAINS} domains registered successfully`);
 }
 
 runBenchmark();

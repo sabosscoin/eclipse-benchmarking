@@ -49,7 +49,7 @@ Before you run the benchmarks, take a look at `diff evm_benchmark.js svm_benchma
 
 For the SVM benchmark, you can update the program ID to specify the program that you deployed when testing the SVM name serivce. We assume that your keypair is located in the default location: `~/.config/solana/id.json`
 
-Run the SVM benchmark:
+Run the SVM benchmark on Eclipse Devnet:
 ```
 $ node svm_benchmark.js
 ```
@@ -58,7 +58,7 @@ $ node svm_benchmark.js
 
 For the EVM benchmark, you'll have to deploy the script to the EVM chain you'd like to benchmark. We didn't specify a chain because the benchmark will vary by architecture and based on network congestion.
 
-Go into the `evm` directory and deploy as per usual:
+Go into the `evm` directory to deploy the program. You can run a local EVM network with `npx hardhat node`, or you can specify a network of your choice in `hardhat.config.js`. Deploy to your desired network from `hardhat.config.js`:
 
 ```
 $ npx hardhat run --network <your-network> scripts/deploy.js
@@ -70,14 +70,3 @@ Run the EVM benchmark:
 ```
 $ node evm_benchmark.js
 ```
-
-### Common Errors
-
-For the EVM script:
-```
-    reason: 'processing response error',
-    code: 'SERVER_ERROR',
-    body: '{"jsonrpc":"2.0","id":56,"error":{"code":-32000,"message":"replacement transaction underpriced"}}\n',
-```
-
-If you get this error, you just need to increase `GAS_MULTIPLER_PER_TX`.
