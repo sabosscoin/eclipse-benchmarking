@@ -25,8 +25,8 @@ contract eclipse_ns {
     }
 
     function register(string calldata name, address payer) external payable {
-        require(domains[name] == address(0), "Already registered");
-        require(valid(name), "Invalid name");
+        require(domains[name] == address(0), "Domain is already registered");
+        require(valid(name), "Invalid domain name");
         uint64 _price = price(name);
         require(msg.value >= _price, "Not enough ETH");
         domains[name] = payer;
