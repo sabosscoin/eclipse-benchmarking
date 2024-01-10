@@ -1,31 +1,33 @@
 import 'solana';
 
 contract eclipse_ns {
-    uint64 constant ERROR_ALREADY_REGISTERED = 100;
-    uint64 constant ERROR_INVALID_NAME = 200;
-    uint64 constant ERROR_NOT_ENOUGH_ETH = 300;
-    uint64 constant ERROR_UNAUTHORIZED = 400;
-    uint64 constant ERROR_INVALID_LENGTH = 500;
+    uint64 constant ERROR_ALREADY_REGISTERED = 1;
+    uint64 constant ERROR_INVALID_NAME = 2;
+    uint64 constant ERROR_NOT_ENOUGH_ETH = 3;
+    uint64 constant ERROR_UNAUTHORIZED = 4;
+    uint64 constant ERROR_INVALID_LENGTH = 5;
     uint64 constant SMALLEST_GAS_UNIT = 10**9;
     address payable public owner;
+    string public tld;
     mapping(string => address) public domains;
     string[] private domainKeys;
     mapping(string => string) public records;
 
     @space(10240)
     @payer(payer) 
-    constructor(address initial_owner) {
+    constructor(string memory _tld, address initial_owner) {
         owner = payable(initial_owner);
+        tld = _tld;
     }
 
     // Register a domain
     @signer(ownerAccount)
     function register(string calldata name, uint64 amount, address payer) external {
-        assert(tx.accounts.ownerAccount.is_signer);
-        assert(domains[name] == address(0) || ERROR_ALREADY_REGISTERED == 0);
-        assert(valid(name) || ERROR_INVALID_NAME == 0);
+        require(tx.accounts.ownerAccount.is_signer, "Unauthorized");
+        require(domains[name] == address(0), "Domain is already registered");
+        require(valid(name), "Invalid domain name");
         uint64 _price = price(name);
-        assert(amount >= _price || ERROR_NOT_ENOUGH_ETH == 0);
+        require(amount >= _price, "Not enough ETH");
         domains[name] = payer;
         domainKeys.push(name);
     }

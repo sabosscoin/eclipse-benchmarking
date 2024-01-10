@@ -1,19 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 contract eclipse_ns {
-    uint64 constant ERROR_ALREADY_REGISTERED = 100;
-    uint64 constant ERROR_INVALID_NAME = 200;
-    uint64 constant ERROR_NOT_ENOUGH_ETH = 300;
-    uint64 constant ERROR_UNAUTHORIZED = 400;
-    uint64 constant ERROR_INVALID_LENGTH = 500;
+    uint64 constant ERROR_ALREADY_REGISTERED = 1;
+    uint64 constant ERROR_INVALID_NAME = 2;
+    uint64 constant ERROR_NOT_ENOUGH_ETH = 3;
+    uint64 constant ERROR_UNAUTHORIZED = 4;
+    uint64 constant ERROR_INVALID_LENGTH = 5;
     uint64 constant SMALLEST_GAS_UNIT = 10**16;
     address payable public owner;
+    string public tld;
     mapping(string => address) public domains;
     string[] private domainKeys;
     mapping(string => string) public records;
 
-    constructor(address initial_owner) {
+    constructor(string memory _tld, address initial_owner) {
         owner = payable(initial_owner);
+        tld = _tld;
     }
 
     // Register a domain
@@ -23,8 +25,8 @@ contract eclipse_ns {
     }
 
     function register(string calldata name, address payer) external payable {
-        require(domains[name] == address(0), "Already registered");
-        require(valid(name), "Invalid name");
+        require(domains[name] == address(0), "Domain is already registered");
+        require(valid(name), "Invalid domain name");
         uint64 _price = price(name);
         require(msg.value >= _price, "Not enough ETH");
         domains[name] = payer;
