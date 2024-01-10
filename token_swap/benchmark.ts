@@ -8,7 +8,10 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 
-import { TokenSwap, CurveType } from "@solana/spl-token-swap";
+import {
+  TokenSwap,
+  CurveType,
+} from "@solana/spl-token-swap";
 import { newAccountWithLamports } from "./util/new-account-with-lamports";
 
 const TOKEN_SWAP_PROGRAM_ID = new PublicKey(
@@ -22,10 +25,10 @@ async function getConnection(): Promise<Connection> {
   if (connection) return connection;
 
   // RPC and WebSocket URLs
-  // const rpcURL = 'https://staging-rpc.dev.eclipsenetwork.xyz';
-  // const wsURL = 'https://staging-rpc.dev.eclipsenetwork.xyz';
-  const rpcURL = "http://127.0.0.1:8899";
-  const wsURL = "ws://127.0.0.1:8900";
+  const rpcURL = 'https://staging-rpc.dev.eclipsenetwork.xyz';
+  const wsURL = 'https://staging-rpc.dev.eclipsenetwork.xyz';
+  // const rpcURL = "http://127.0.0.1:8899";
+  // const wsURL = "ws://127.0.0.1:8900";
 
   connection = new Connection(rpcURL, {
     commitment: "confirmed",
@@ -57,7 +60,7 @@ const main = async () => {
     await mintTo(connection, payer, mintA, userAccountA, owner, SWAP_AMOUNT_IN);
 
     console.log("Run test: benchmark swap");
-    await benchmarkSwap(250);
+    await benchmarkSwap(275);
 
     console.log("Success\n");
 }
@@ -288,43 +291,46 @@ export async function swap(
 async function benchmarkSwap(iterations: number) {
   const swapPromises: any = [];
   const userTransferAuthority = Keypair.generate();
+  const keyPairsA = Array(iterations)
+    .fill(null)
+    .map(() => Keypair.generate());
+  const keyPairsB = Array(iterations)
+    .fill(null)
+    .map(() => Keypair.generate());
+  const userAccountsA: any = [];
+  const userAccountsB: any = [];
+
+  // Create all accounts before the loop
+  for (let i = 0; i < iterations; i++) {
+    userAccountsA.push(
+      createAccount(connection, payer, mintA, owner.publicKey, keyPairsA[i])
+    );
+    userAccountsB.push(
+      createAccount(connection, payer, mintB, owner.publicKey, keyPairsB[i])
+    );
+  }
+
+  // Resolve all promises from account creation
+  const accountsA = await Promise.all(userAccountsA);
+  const accountsB = await Promise.all(userAccountsB);
+
+  // Mint to all accounts before the loop
+  const mintPromises = accountsA.map((account) =>
+    mintTo(connection, payer, mintA, account, owner, SWAP_AMOUNT_IN)
+  );
+  await Promise.all(mintPromises);
 
   const startTime = Date.now();
+  console.log("Starting timer");
 
   for (let i = 0; i < iterations; i++) {
-    // Optimize account creation by running them in parallel.
     swapPromises.push(
-      (async () => {
-        const [userAccountA, userAccountB] = await Promise.all([
-          createAccount(
-            connection,
-            payer,
-            mintA,
-            owner.publicKey,
-            Keypair.generate()
-          ),
-          createAccount(
-            connection,
-            payer,
-            mintB,
-            owner.publicKey,
-            Keypair.generate()
-          ),
-        ]);
-
+      (() => {
         try {
-          await mintTo(
-            connection,
-            payer,
-            mintA,
-            userAccountA,
-            owner,
-            SWAP_AMOUNT_IN
-          );
-          await swap(userAccountA, userAccountB, userTransferAuthority);
+          swap(accountsA[i], accountsB[i], userTransferAuthority);
           return "success";
         } catch (error: any) {
-          console.error("Swap failed:", error.message); 
+          console.error("Swap failed:", error.message);
           return "failed";
         }
       })()
@@ -333,6 +339,7 @@ async function benchmarkSwap(iterations: number) {
 
   const results = await Promise.all(swapPromises);
   const endTime = Date.now();
+  
 
   // Analysis and reporting
   const totalTime = endTime - startTime;
@@ -345,4 +352,6 @@ async function benchmarkSwap(iterations: number) {
   console.log(
     `Total time: ${totalTime} ms, Average time: ${averageTime} ms, Successful: ${successfulSwaps}, Failed: ${failedSwaps}`
   );
+  console.log("Ending timer");
 }
+
